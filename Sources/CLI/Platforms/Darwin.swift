@@ -6,6 +6,14 @@ import Foundation
 #endif
 
 struct SDKOptions: ParsableArguments {
+    /// The Xcode developer directory path to use.
+    @Option(
+        name: .customLong("xcode-developer-path"),
+        help:
+            "The Xcode developer directory path to use. If not specified, the active Xcode developer path will be used."
+    )
+    var xcodeDeveloperPath: String?
+
     /// The name of the SDK to use.
     @Option(name: .shortAndLong, help: "The name of the SDK to use.")
     var sdkName: String
@@ -64,7 +72,8 @@ struct Darwin: PlatformCommand {
                 let (llvmTargetTriple, llvmSysroot) = await getInfoForSDK(
                     withName: sdkOptions.sdkName,
                     variant: sdkOptions.variant,
-                    andArchitecture: sdkOptions.architecture
+                    andArchitecture: sdkOptions.architecture,
+                    usingXcodeDeveloperPath: sdkOptions.xcodeDeveloperPath
                 )
             else {
                 throw ValidationError(

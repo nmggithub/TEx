@@ -9,17 +9,23 @@ struct EmptyCoreDelegate: CoreDelegate, Sendable {
             DiagnosticsEngine())
 }
 
-func getCore() async throws -> Core? {
-    await Core.getInitializedCore(
+func getCore(xcodeDeveloperPath: Path? = nil) async throws -> Core? {
+    let xcodeDeveloperPath =
+        if let xcodeDeveloperPath {
+            xcodeDeveloperPath
+        } else {
+            try await Xcode.getActiveDeveloperDirectoryPath()
+        }
+    return await Core.getInitializedCore(
         EmptyCoreDelegate(),
         pluginManager: PluginManager(skipLoadingPluginIdentifiers: []),
-        developerPath: .xcode(try await Xcode.getActiveDeveloperDirectoryPath()),
+        developerPath: .xcode(xcodeDeveloperPath),
         buildServiceModTime: Date(),
         connectionMode: .inProcess
     )
 }
 
-func getSDKRegistry() async throws -> SDKRegistry? {
-    let core = try await getCore()
+func getSDKRegistry(xcodeDeveloperPathString: String? = nil) async throws -> SDKRegistry? {
+    let core = try await getCore(xcodeDeveloperPath: xcodeDeveloperPathString.flatMap({ Path($0) }))
     return core?.sdkRegistry  // This line crashes the language server for some reason
 }

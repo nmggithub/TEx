@@ -5,10 +5,11 @@ import SWBUtil
 public func getInfoForSDK(
     withName name: String,
     variant: String,
-    andArchitecture architecture: String
+    andArchitecture architecture: String,
+    usingXcodeDeveloperPath xcodeDeveloperPath: String? = nil
 ) async -> (llvmTargetTriple: String, llvmSysroot: String)? {
     guard
-        let sdkRegistry = try? await getSDKRegistry(),
+        let sdkRegistry = try? await getSDKRegistry(xcodeDeveloperPathString: xcodeDeveloperPath),
         let targetSDK = sdkRegistry.allSDKs.first(where: { $0.canonicalName == name }),
         let targetVariant = targetSDK.variant(for: variant),
         targetVariant.archs?.contains(architecture) == true,
